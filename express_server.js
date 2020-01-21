@@ -8,14 +8,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "9sm5xK": "http://www.google.com",
+
 };
 
-function generateRandomString() {
+function generateRandomString(length) {
    let result           = '';
    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
    let charactersLength = characters.length;
-   for ( let i = 0; i < 6; i++ ) {
+   for ( let i = 0; i < length; i++ ) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
    return result;
@@ -23,10 +24,23 @@ function generateRandomString() {
 
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  const shortURL = generateRandomString(6);
+  urlDatabase[shortURL] = req.body.longURL// Log the POST request body to the console
+  res.redirect(`/u/${shortURL}`)
+  // console.log(req.body.longURL);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  let templateVars = 
+  { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL]
+  };
+  res.redirect(urlDatabase[req.params.shortURL])
+});
+
+console.log(urlDatabase)
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -52,8 +66,8 @@ app.get("/fetch", (req, res) => {
 // routes
 
 app.get ('/urls', (req, res) => {
-    let templatelets = { urls: urlDatabase };
-    res.render("urls_index", templatelets);
+    let templateVars = { urls: urlDatabase };
+    res.render("urls_index", templateVars);
 })
 
 app.get("/urls/new", (req, res) => {
@@ -61,14 +75,15 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-    let templatelets = 
+    let templateVars = 
     { 
       shortURL: req.params.shortURL, 
       longURL: urlDatabase[req.params.shortURL]
     };
-    res.render('urls_show', templatelets)
+    res.render('urls_show', templateVars)
     
   })  
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
