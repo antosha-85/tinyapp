@@ -24,19 +24,21 @@ function generateRandomString(length) {
 
 
 app.post("/urls", (req, res) => {
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
   const shortURL = generateRandomString(6);
   urlDatabase[shortURL] = req.body.longURL// Log the POST request body to the console
   res.redirect(`/u/${shortURL}`)
   // console.log(req.body.longURL);
 });
 
+app.post('/urls/:shortURL/delete', (req, res) => {
+  
+  delete urlDatabase[req.params.shortURL];
+  console.log(urlDatabase)
+  res.redirect('/urls')
+  // console.log(req.body.longURL);
+});
+
 app.get("/u/:shortURL", (req, res) => {
-  let templateVars = 
-  { 
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL]
-  };
   res.redirect(urlDatabase[req.params.shortURL])
 });
 
@@ -66,7 +68,8 @@ app.get("/fetch", (req, res) => {
 // routes
 
 app.get ('/urls', (req, res) => {
-    let templateVars = { urls: urlDatabase };
+    let templateVars = { urls/*using name of variable in ejs file */: urlDatabase/*using variable 
+    form here */ };
     res.render("urls_index", templateVars);
 })
 
