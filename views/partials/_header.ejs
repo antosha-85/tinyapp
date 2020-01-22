@@ -18,7 +18,9 @@
           <% } else { %>
             <form class="form-inline" action="/logout" method="POST">
               <div class="navbar-nav">
-                <p class="nav-item ">Logged in as <%=username %></p>
+                <div style="padding-top: 0.5rem;padding-right: 0.5rem;">
+                  Logged in as <%=username %>
+                </div>
                 <button type="submit" class="btn btn-outline-dark">Logout</button>
               </div>
             </form>
