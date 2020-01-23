@@ -15,6 +15,19 @@ const urlDatabase = {
 
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 function generateRandomString(length) {
    let result           = '';
    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -30,23 +43,20 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
   urlDatabase[shortURL] = req.body.longURL// Log the POST request body to the console
   res.redirect(`/u/${shortURL}`)
-  // console.log(req.body.longURL);
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   
   delete urlDatabase[req.params.shortURL];
-  // console.log(urlDatabase)
   res.redirect('/urls')
 });
 
 app.get('/urls/:shortURL/edit', (req, res) => {
   let templateVars = {
-    username: req.cookies["username"], 
+    user: users[req.cookies.user],
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL]
   };
-  console.log("TCL: req.cookies", req.cookies)
   
   res.render("urls_show", templateVars);
 });
@@ -56,22 +66,70 @@ app.post('/urls/:shortURL/edit', (req, res) => {
   res.redirect("/urls");
 });
 
+// login routes
+
+app.get('/login', (req, res) => {
+  let templateVars = {
+    user: users[req.cookies.user],
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL]
+  };
+  res.render('login', templateVars)
+});
+
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username)
-  res.redirect("/urls");
+  for (const user in users) {
+    if (req.body.email === users[user].email && req.body.password === users[user].password) {
+      res.cookie('user', user)
+      res.redirect('/urls')
+      return
+    }
+  }
+  res.status(400).send('The user doesn\'t exist, please go to the register page or the password is not correct!')
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user');
   res.redirect("/urls");
 });
 
+//register routes
+
+app.get('/register', (req, res) => {
+  let templateVars = {
+    user: users[req.cookies.user],
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL]
+  };
+  res.render('register', templateVars)
+});
+
+app.post('/register', (req, res) => {
+  if(req.body.password === '' || req.body.email === '') {
+    res.status(400).send('Email and Password are required!')
+  } 
+  //looping to check existing user
+  for (const user in users) {
+    //if user exists we send the error message
+    if(req.body.email === users[user].email) {
+      res.status(400).send('You already have an account here, login instead?')
+    }
+  }
+  const newID = generateRandomString(6);
+  const userID = {};
+  userID.id = newID;
+  users[newID] = userID;
+  userID.password = req.body.password;
+  userID.email = req.body.email;
+  res.cookie('user', newID);
+  res.redirect('/urls')
+});
+//delimiter
 
 app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL])
 });
 
-console.log(urlDatabase)
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -98,22 +156,22 @@ app.get("/fetch", (req, res) => {
 
 app.get ('/urls', (req, res) => {
     let templateVars = { 
-      username: req.cookies["username"],
-      urls/*using name of variable in ejs file */: urlDatabase/*using variable 
-    form here */ };
+      user: users[req.cookies.user],
+      urls: urlDatabase
+    };
     res.render("urls_index", templateVars);
 })
 
 app.get("/urls/new", (req, res) => {
   let templateVars = { 
-    username: req.cookies["username"]
+    user: users[req.cookies.user]
   }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
     let templateVars = 
-    { username: req.cookies["username"],
+    { user: users[req.cookies.user],
       shortURL: req.params.shortURL, 
       longURL: urlDatabase[req.params.shortURL]
     };
