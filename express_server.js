@@ -2,7 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const cookieParser = require('cookie-parser');
-const { generateRandomString } = require('./helperFunc/helperFunc');
+const { generateRandomString, getloggedUserID } = require('./helperFunc/helperFunc');
+
+
 
 const PORT = 8080; // default port 8080
 
@@ -37,16 +39,7 @@ app.post("/urls", (req, res) => {
 });
 //start from here maybe loop first?
 
-function getloggedUserID (urlDatabase, userId) {
-  const loggedUserID = {};
-  //looping through the urlDatabase object to check that ids match
-    for (const url in urlDatabase) {
-      if (urlDatabase[url].userID === userId) {
-        loggedUserID[url] = urlDatabase[url];
-      }
-    }
-    return loggedUserID;
-}
+
 
 app.get('/urls', (req, res) => {
   //creating variable with user ID
@@ -55,23 +48,12 @@ app.get('/urls', (req, res) => {
   if (user && user.id) {
     const userId = user.id
     loggedUserID = getloggedUserID(urlDatabase, userId);
-  //   const loggedUserID = {};
-  // //looping through the urlDatabase object to check that ids match
-  //   for (const url in urlDatabase) {
-  //     if (urlDatabase[url].userID === userId) {
-  //       loggedUserID[url] = urlDatabase[url];
-  //     }
-  //   }
     let templateVars = {
       user: users[req.cookies.user],
       urls: loggedUserID
     }
-    console.log(req.cookies.user)
-  console.log(loggedUserID[req.cookies.user])
-  console.log({templateVars})
     res.render("urls_index", templateVars);
     return
-
   }
   res.redirect('/login')
 });
@@ -113,7 +95,7 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   res.clearCookie('user');
-  res.redirect("/urls/register");
+  res.redirect("/login");
 });
 
 //register routes
@@ -177,7 +159,10 @@ app.get('/urls/:shortURL/edit', (req, res) => {
 });
 
 app.post('/urls/:shortURL/edit', (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  urlDatabase[shortURL]['longURL'] = req.body.longURL
+  console.log("TCL: eq.body.longURL", req.body.longURL)
+  
+  // urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
 });
 

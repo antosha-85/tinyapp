@@ -8,4 +8,14 @@ function generateRandomString(length) {
     return result;
  }
 
- module.exports = {generateRandomString}
+ function getloggedUserID (urlDatabase, userId) {
+   const loggedUserID = {};
+   //looping through the urlDatabase object to check that ids match
+     for (const url in urlDatabase) {
+       if (urlDatabase[url].userID === userId) {
+         loggedUserID[url] = urlDatabase[url];
+       }
+     }
+     return loggedUserID;
+ }
+ module.exports = {generateRandomString, getloggedUserID}
