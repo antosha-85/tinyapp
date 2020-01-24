@@ -172,7 +172,7 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 //delimiter
 
 app.get("/u/:shortURL", (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL])
+  res.redirect(urlDatabase[req.params.shortURL]['longURL'])
 });
 
 app.get("/", (req, res) => {
