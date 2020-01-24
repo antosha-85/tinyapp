@@ -55,7 +55,7 @@ app.get('/urls', (req, res) => {
     res.render("urls_index", templateVars);
     return //WHY IS IT HERE?!
   }
-  res.redirect('/login')
+  res.send('you need to login first!')
 });
 
 
@@ -66,7 +66,7 @@ app.get("/urls/new", (req, res) => {
     }
     res.render("urls_new", templateVars);
   } else {
-    res.redirect('/login')
+    res.send('you need to login first!')
   }
 });
 
@@ -78,8 +78,9 @@ app.get('/login', (req, res) => {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
-  res.render('login', templateVars)
   
+  res.render('login', templateVars)
+
 });
 
 app.post('/login', (req, res) => {
@@ -96,6 +97,7 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   res.clearCookie('user');
   res.redirect("/login");
+  return
 });
 
 //register routes
@@ -128,7 +130,8 @@ app.post('/register', (req, res) => {
   userID.email = req.body.email;
   res.cookie('user', newID);
 
-  res.redirect('/urls')
+  res.redirect('/urls/new')
+  return
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -143,30 +146,34 @@ app.get("/urls/:shortURL", (req, res) => {
 })
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls')
+  if (req.cookies.user) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls')
+  }
 });
 
 app.get('/urls/:shortURL/edit', (req, res) => {
+  if (req.cookies.user) {
   let templateVars = {
     user: users[req.cookies.user],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]['longURL']
-  };
-
+  }
   res.render("urls_show", templateVars);
+  return
+};
+res.send(`please login first!`);
+return
 });
 
 app.post('/urls/:shortURL/edit', (req, res) => {
-  console.log("TCL: urlDatabase", urlDatabase)
-  console.log("TCL: req.body", req.body)
-  console.log("TCL: req.cookies.user", req.cookies.user)
+  if (req.cookies.user) {
   urlDatabase[req.params.shortURL]['longURL'] = req.body.longURL
-  
-  
-  // urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
+  }
+  res.send(`please login first!`);
+  return
+  // urlDatabase[req.params.shortURL] = req.body.longURL;
 });
 
 //delimiter
