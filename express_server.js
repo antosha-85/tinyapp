@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const cookieParser = require('cookie-parser');
 const { generateRandomString, getloggedUserID } = require('./helperFunc/helperFunc');
+const bcrypt = require('bcrypt');
 
 
 
@@ -85,7 +86,7 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   for (const user in users) {
-    if (req.body.email === users[user].email && req.body.password === users[user].password) {
+    if (req.body.email === users[user].email && bcrypt.compareSync(req.body.password, users[user].password)) {
       res.cookie('user', user)
       res.redirect('/urls')
       return
@@ -126,9 +127,12 @@ app.post('/register', (req, res) => {
   const userID = {};
   userID.id = newID;
   users[newID] = userID;
-  userID.password = req.body.password;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  userID.password = hashedPassword;
   userID.email = req.body.email;
   res.cookie('user', newID);
+  console.log("TCL: hashedPassword", hashedPassword)
 
   res.redirect('/urls/new')
   return
