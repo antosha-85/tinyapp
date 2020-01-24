@@ -53,7 +53,7 @@ app.get('/urls', (req, res) => {
       urls: loggedUserID
     }
     res.render("urls_index", templateVars);
-    return
+    return //WHY IS IT HERE?!
   }
   res.redirect('/login')
 });
@@ -159,8 +159,11 @@ app.get('/urls/:shortURL/edit', (req, res) => {
 });
 
 app.post('/urls/:shortURL/edit', (req, res) => {
-  urlDatabase[shortURL]['longURL'] = req.body.longURL
-  console.log("TCL: eq.body.longURL", req.body.longURL)
+  console.log("TCL: urlDatabase", urlDatabase)
+  console.log("TCL: req.body", req.body)
+  console.log("TCL: req.cookies.user", req.cookies.user)
+  urlDatabase[req.params.shortURL]['longURL'] = req.body.longURL
+  
   
   // urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
