@@ -17,7 +17,6 @@ app.use(cookieParser());
 app.use(cookieSession({
   name: 'session_new',
   keys: ['kkk'],
-  // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
