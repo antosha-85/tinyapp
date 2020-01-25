@@ -68,13 +68,12 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  for (const user in users) {
-    if (req.body.email === users[user].email && bcrypt.compareSync(req.body.password, users[user].password)) {
-      req.session.user_id = user;
+  const user = getUserByEmail(req.body.email, users)
+  if(user && bcrypt.compareSync(req.body.password, user.password)) {
+      req.session.user_id = user.id;
       res.redirect('/urls')
       return
     }
-  }
   res.status(400).send('The user doesn\'t exist, please go to the register page or the password is not correct!')
 });
 
