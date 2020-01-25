@@ -26,4 +26,4 @@ function getUserByEmail(email, users) {
     }
   }
 }
-module.exports = { generateRandomString, getloggedUserID, getUserByEmail }
+module.exports = { generateRandomString, getloggedUserID, getUserByEmail };
